@@ -56,3 +56,6 @@ Menu menuGloves[MAX_LANG][4][9];
 
 StringMap g_smGlovesGroupIndex;
 StringMap g_smLanguageIndex;
+
+ConVar g_Cvar_VIPGroups;
+char g_VIPGroups[256];

@@ -18,6 +18,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <cstrike>
+#include <vip_core>
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -49,6 +50,7 @@ public void OnPluginStart()
 	g_Cvar_EnableFloat = CreateConVar("sm_gloves_enable_float", "1", "Enable/Disable gloves float options");
 	g_Cvar_FloatIncrementSize = CreateConVar("sm_gloves_float_increment_size", "0.2", "Increase/Decrease by value for gloves float");
 	g_Cvar_EnableWorldModel = CreateConVar("sm_gloves_enable_world_model", "1", "Enable/Disable gloves to be seen by other living players");
+	g_Cvar_VIPGroups 				= CreateConVar("sm_gloves_vip_groups", "", "VIP Groups that get gloves for free");
 	
 	AutoExecConfig(true, "gloves");
 	
@@ -87,6 +89,7 @@ public void OnConfigsExecuted()
 	g_fFloatIncrementSize = g_Cvar_FloatIncrementSize.FloatValue;
 	g_iFloatIncrementPercentage = RoundFloat(g_fFloatIncrementSize * 100.0);
 	g_iEnableWorldModel = g_Cvar_EnableWorldModel.IntValue;
+	g_Cvar_VIPGroups.GetString(g_VIPGroups, sizeof(g_VIPGroups));
 	ReadConfig();
 }
 
@@ -94,7 +97,22 @@ public Action CommandGlove(int client, int args)
 {
 	if (IsValidClient(client))
 	{
-		CreateMainMenu(client).Display(client, MENU_TIME_FOREVER);
+		char vipGroup[32];
+		bool isVIP = false;
+
+		if (VIP_GetClientVIPGroup(client, vipGroup, sizeof(vipGroup)))
+		{
+			isVIP = StrContains(g_VIPGroups, vipGroup) > -1;
+		}
+
+		if (!isVIP && strlen(g_VIPGroups) != 0)
+		{
+			PrintToChat(client, " %s \x02 Sorry! You must have VIP to access this command", g_ChatPrefix);
+		}
+		else
+		{
+			CreateMainMenu(client).Display(client, MENU_TIME_FOREVER);
+		}
 	}
 	return Plugin_Handled;
 }
@@ -103,7 +121,22 @@ public Action CommandGloveLang(int client, int args)
 {
 	if (IsValidClient(client))
 	{
-		CreateLanguageMenu(client).Display(client, MENU_TIME_FOREVER);
+		char vipGroup[32];
+		bool isVIP = false;
+
+		if (VIP_GetClientVIPGroup(client, vipGroup, sizeof(vipGroup)))
+		{
+			isVIP = StrContains(g_VIPGroups, vipGroup) > -1;
+		}
+
+		if (!isVIP && strlen(g_VIPGroups) != 0)
+		{
+			PrintToChat(client, " %s \x02 Sorry! You must have VIP to access this command", g_ChatPrefix);
+		}
+		else
+		{
+			CreateLanguageMenu(client).Display(client, MENU_TIME_FOREVER);
+		}
 	}
 	return Plugin_Handled;
 }
